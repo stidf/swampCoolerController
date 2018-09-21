@@ -1,4 +1,4 @@
-#include <arduino.h>
+#include <Arduino.h>
 #include <DHT.h>
 #include <SPI.h>
 #include "../config/pinout.h"
@@ -33,11 +33,11 @@ DHT dht(DHTPIN, DHTTYPE);
 volatile double currentAmbientHumidity = 0;
 volatile double currentAmbientTemperature = 0;
 volatile double currentOutletTemperature = 0;
-volatile boolean pumpToggle = false;
-volatile boolean fanToggle = false;
+volatile boolean pumpToggle = true;
+volatile boolean fanToggle = true;
 volatile boolean waterLevelToggle = true;
-volatile boolean lightToggle = false;
- 
+volatile boolean lightToggle = true;
+
 
 
 
@@ -54,10 +54,10 @@ void setup(){
     pinMode(fanRelayPin, OUTPUT);
     pinMode(lightRelayPin, OUTPUT);
 
-    pinMode(echoPin, INPUT);
-    pinMode(sensorTriggerPin, OUTPUT);
+    // pinMode(echoPin, INPUT);
+    // pinMode(sensorTriggerPin, OUTPUT);
 
-    digitalWrite(sensorTriggerPin, LOW);
+    // digitalWrite(sensorTriggerPin, LOW);
 
     ambientSensorRead();
     controllerSwitchRead();
@@ -70,6 +70,7 @@ void loop(){
   controllerSwitchRead();
   swampController();
   lightControl();
+  delay(1000);
 }
 
 void swampController(){
@@ -118,18 +119,28 @@ void lightControl(){
 }
 
 void pumpSwitchRead(){
+    bool temp = pumpToggle;
     pumpToggle = digitalRead(pumpRelayPin);
-    Serial.println("pump switch toggled");
+    if (pumpToggle != temp){
+      Serial.println("pump switch toggled");
+    }
 }
 
 void fanSwitchRead(){
+  bool temp = fanToggle;
     fanToggle = digitalRead(fanRelayPin);
-    Serial.println("fan switch toggled");
+    if(fanToggle != temp){
+      Serial.println("fan switch toggled");
+    }
 }
 
 void lightSwitchRead(){
+    bool temp = lightToggle;
     lightToggle = digitalRead(lightRelayPin);
-    Serial.println("light switch toggled");
+    if(lightToggle != temp){
+      Serial.println("light switch toggled");
+
+    }
 }
 
 void ambientSensorRead(){
@@ -190,29 +201,29 @@ boolean ambientConditionsTest(){
   return(ambientConditionsResult);
 }
 
-int sonicRangeFinder() {
-  // fires the ultrasonic range finder and then returns the distance in mm.
-  unsigned long pulseWidth = 0;
-  unsigned long pulseT1 = 0;
-  unsigned long pulseT2 = 0;
-  int sampleCount = 5;
-
-  int distance = 0; // in mm
-  digitalWrite(sensorTriggerPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(sensorTriggerPin, LOW);
-  for(int i=0; i<sampleCount; i++){
-    while (digitalRead(echoPin) == 0) {
-      pulseT1 = micros();
-      while (digitalRead(echoPin) == 1) {
-        pulseT2 = micros();
-        pulseWidth=pulseT2-pulseT1;
-      }
-    }
-    distance = distance + pulseWidth / 5.80;
-  }
-  distance = distance / sampleCount;
-  Serial.print("water level: ");
-  Serial.println(distance);
-  return distance;
-}
+// int sonicRangeFinder() {
+//   // fires the ultrasonic range finder and then returns the distance in mm.
+//   unsigned long pulseWidth = 0;
+//   unsigned long pulseT1 = 0;
+//   unsigned long pulseT2 = 0;
+//   int sampleCount = 5;
+//
+//   int distance = 0; // in mm
+//   digitalWrite(sensorTriggerPin, HIGH);
+//   delayMicroseconds(10);
+//   digitalWrite(sensorTriggerPin, LOW);
+//   for(int i=0; i<sampleCount; i++){
+//     while (digitalRead(echoPin) == 0) {
+//       pulseT1 = micros();
+//       while (digitalRead(echoPin) == 1) {
+//         pulseT2 = micros();
+//         pulseWidth=pulseT2-pulseT1;
+//       }
+//     }
+//     distance = distance + pulseWidth / 5.80;
+//   }
+//   distance = distance / sampleCount;
+//   Serial.print("water level: ");
+//   Serial.println(distance);
+//   return distance;
+// }
